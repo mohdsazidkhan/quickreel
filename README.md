@@ -1,32 +1,3 @@
-# Fabric Video Editor
-
-Fabric Video Editor is a video editor that runs in the browser. It is built with fabric.js, React, Tailwindcss, Mobx, and typescript.
-
-## Features
-
-- [x] User can add
-  - [x] Text
-  - [x] Images
-  - [x] Video
-  - [x] Audio
-- [x] User can change
-  - [x] Canvas Background Color
-- [x] Timeline
-- [x] Export Video with Audio
-
-## Main Issues
-
-1. There might be problem in audio handling
-2. Exported video doesnt have time duration
-3. Exported video have flickering issue
-
-## Future Features
-
-1. Animations
-2. Filters
-3. Properties Editing panel
-4. Video Trimming
-
 ## NextJs Default Guide (Updated)
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
