@@ -10,7 +10,7 @@ export const TimeFrameView = observer((props: { element: EditorElement }) => {
   const { element } = props;
   const disabled = element.type === "audio";
   const isSelected = store.selectedElement?.id === element.id;
-  const bgColorOnSelected = isSelected ? "bg-slate-800" : "bg-slate-600";
+  const bgColorOnSelected = isSelected ? "bg-red-500" : "bg-red-200";
   const disabledCursor = disabled ? "cursor-no-drop" : "cursor-ew-resize";
 
   return (

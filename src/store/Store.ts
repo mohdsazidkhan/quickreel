@@ -1,8 +1,8 @@
 import { makeAutoObservable } from 'mobx';
 import { fabric } from 'fabric';
-import { getUid, isHtmlAudioElement, isHtmlImageElement, isHtmlVideoElement } from '@/utils';
-import anime, { get } from 'animejs';
-import { MenuOption, EditorElement, Animation, TimeFrame, VideoEditorElement, AudioEditorElement, Placement, ImageEditorElement, Effect, TextEditorElement } from '../types';
+import { getUid,  isHtmlVideoElement } from '@/utils';
+import anime from 'animejs/lib/anime.es';
+import { MenuOption, EditorElement, Animation, TimeFrame, VideoEditorElement, Placement, Effect, TextEditorElement } from '../types';
 import { FabricUitls } from '@/utils/fabric-utils';
 
 export class Store {
@@ -72,7 +72,7 @@ export class Store {
   updateEffect(id: string, effect: Effect) {
     const index = this.editorElements.findIndex((element) => element.id === id);
     const element = this.editorElements[index];
-    if (isEditorVideoElement(element) || isEditorImageElement(element)) {
+    if (isEditorVideoElement(element)) {
       element.properties.effect = effect;
     }
     this.refreshElements();
@@ -150,11 +150,12 @@ export class Store {
             fabricObject.set('clipPath', clipRectangle)
           }
           if(editorElement.type === "text" && animation.properties.textType === "character"){
-            this.canvas?.remove(...editorElement.properties.splittedTexts)
-            editorElement.properties.splittedTexts = getTextObjectsPartitionedByCharacters(editorElement.fabricObject, editorElement);
-              editorElement.properties.splittedTexts.forEach((textObject) => {
-              this.canvas!.add(textObject);
-            })
+            this.canvas?.remove(...editorElement.properties.splittedTexts);
+            console.log(editorElement.fabricObject, ' editorElement.fabricObject')
+            // editorElement.properties.splittedTexts = getTextObjectsPartitionedByCharacters(editorElement.fabricObject, editorElement);
+            //   editorElement.properties.splittedTexts.forEach((textObject) => {
+            //   this.canvas!.add(textObject);
+            // })
             const duration = animation.duration/2;
             const delay = duration/editorElement.properties.splittedTexts.length;
             for(let i = 0; i < editorElement.properties.splittedTexts.length; i++){
@@ -317,7 +318,6 @@ export class Store {
       }
     }
     this.updateVideoElements();
-    this.updateAudioElements();
     this.updateEditorElement(newEditorElement);
     this.refreshAnimations();
   }
@@ -344,7 +344,6 @@ export class Store {
   setPlaying(playing: boolean) {
     this.playing = playing;
     this.updateVideoElements();
-    this.updateAudioElements();
     if (playing) {
       this.startedTime = Date.now();
       this.startedTimePlay = this.currentTimeInMs
@@ -394,7 +393,6 @@ export class Store {
     }
     this.updateTimeTo(seek);
     this.updateVideoElements();
-    this.updateAudioElements();
   }
 
   addVideo(index: number) {
@@ -434,110 +432,6 @@ export class Store {
     );
   }
 
-  addImage(index: number) {
-    const imageElement = document.getElementById(`image-${index}`)
-    if (!isHtmlImageElement(imageElement)) {
-      return;
-    }
-    const aspectRatio = imageElement.naturalWidth / imageElement.naturalHeight;
-    const id = getUid();
-    this.addEditorElement(
-      {
-        id,
-        name: `Media(image) ${index + 1}`,
-        type: "image",
-        placement: {
-          x: 0,
-          y: 0,
-          width: 100 * aspectRatio,
-          height: 100,
-          rotation: 0,
-          scaleX: 1,
-          scaleY: 1,
-        },
-        timeFrame: {
-          start: 0,
-          end: this.maxTime,
-        },
-        properties: {
-          elementId: `image-${id}`,
-          src: imageElement.src,
-          effect: {
-            type: "none",
-          }
-        },
-      },
-    );
-  }
-
-  addAudio(index: number) {
-    const audioElement = document.getElementById(`audio-${index}`)
-    if (!isHtmlAudioElement(audioElement)) {
-      return;
-    }
-    const audioDurationMs = audioElement.duration * 1000;
-    const id = getUid();
-    this.addEditorElement(
-      {
-        id,
-        name: `Media(audio) ${index + 1}`,
-        type: "audio",
-        placement: {
-          x: 0,
-          y: 0,
-          width: 100,
-          height: 100,
-          rotation: 0,
-          scaleX: 1,
-          scaleY: 1,
-        },
-        timeFrame: {
-          start: 0,
-          end: audioDurationMs,
-        },
-        properties: {
-          elementId: `audio-${id}`,
-          src: audioElement.src,
-        }
-      },
-    );
-
-  }
-  addText(options: {
-    text: string,
-    fontSize: number,
-    fontWeight: number,
-  }) {
-    const id = getUid();
-    const index = this.editorElements.length;
-    this.addEditorElement(
-      {
-        id,
-        name: `Text ${index + 1}`,
-        type: "text",
-        placement: {
-          x: 0,
-          y: 0,
-          width: 100,
-          height: 100,
-          rotation: 0,
-          scaleX: 1,
-          scaleY: 1,
-        },
-        timeFrame: {
-          start: 0,
-          end: this.maxTime,
-        },
-        properties: {
-          text: options.text,
-          fontSize: options.fontSize,
-          fontWeight: options.fontWeight,
-          splittedTexts: [],
-        },
-      },
-    );
-  }
-
   updateVideoElements() {
     this.editorElements.filter(
       (element): element is VideoEditorElement =>
@@ -556,98 +450,7 @@ export class Store {
         }
       })
   }
-  updateAudioElements() {
-    this.editorElements.filter(
-      (element): element is AudioEditorElement =>
-        element.type === "audio"
-    )
-      .forEach((element) => {
-        const audio = document.getElementById(element.properties.elementId);
-        if (isHtmlAudioElement(audio)) {
-          const audioTime = (this.currentTimeInMs - element.timeFrame.start) / 1000;
-          audio.currentTime = audioTime;
-          if (this.playing) {
-            audio.play();
-          } else {
-            audio.pause();
-          }
-        }
-      })
-  }
-  // saveCanvasToVideo() {
-  //   const video = document.createElement("video");
-  //   const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-  //   const stream = canvas.captureStream();
-  //   video.srcObject = stream;
-  //   video.play();
-  //   const mediaRecorder = new MediaRecorder(stream);
-  //   const chunks: Blob[] = [];
-  //   mediaRecorder.ondataavailable = function (e) {
-  //     console.log("data available");
-  //     console.log(e.data);
-  //     chunks.push(e.data);
-  //   };
-  //   mediaRecorder.onstop = function (e) {
-  //     const blob = new Blob(chunks, { type: "video/webm" });
-  //     const url = URL.createObjectURL(blob);
-  //     const a = document.createElement("a");
-  //     a.href = url;
-  //     a.download = "video.webm";
-  //     a.click();
-  //   };
-  //   mediaRecorder.start();
-  //   setTimeout(() => {
-  //     mediaRecorder.stop();
-  //   }, this.maxTime);
-
-  // }
-
-  saveCanvasToVideoWithAUdio() {
-    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    const stream = canvas.captureStream(30);
-    const audioElements = this.editorElements.filter(isEditorAudioElement)
-    const audioStreams: MediaStream[] = [];
-    audioElements.forEach((audio) => {
-      const audioElement = document.getElementById(audio.properties.elementId) as HTMLAudioElement;
-      let ctx = new AudioContext();
-      let sourceNode = ctx.createMediaElementSource(audioElement);
-      let dest = ctx.createMediaStreamDestination();
-      sourceNode.connect(dest);
-      sourceNode.connect(ctx.destination);
-      audioStreams.push(dest.stream);
-    });
-    audioStreams.forEach((audioStream) => {
-      stream.addTrack(audioStream.getAudioTracks()[0]);
-    })
-    const video = document.createElement("video");
-    video.srcObject = stream;
-    video.height = 500;
-    video.width = 800;
-    // video.controls = true;
-    // document.body.appendChild(video);
-    video.play().then(() => {
-      const mediaRecorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
-      mediaRecorder.ondataavailable = function (e) {
-        chunks.push(e.data);
-        console.log("data available");
-      };
-      mediaRecorder.onstop = function (e) {
-        const blob = new Blob(chunks, { type: "video/webm" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "video.webm";
-        a.click();
-      };
-      mediaRecorder.start();
-      setTimeout(() => {
-        mediaRecorder.stop();
-      }, this.maxTime);
-      video.remove();
-    })
-
-  }
+ 
 
   refreshElements() {
     const store = this;
@@ -658,7 +461,7 @@ export class Store {
       const element = store.editorElements[index];
       switch (element.type) {
         case "video": {
-          console.log("elementid", element.properties.elementId);
+          //console.log("elementid", element.properties.elementId);
           if (document.getElementById(element.properties.elementId) == null)
             continue;
           const videoElement = document.getElementById(
@@ -682,7 +485,7 @@ export class Store {
             selectable: true,
             lockUniScaling: true,
             // filters: filters,
-            customFilter: element.properties.effect.type,
+            //customFilter: element.properties.effect.type,
           });
 
           element.fabricObject = videoObject;
@@ -720,124 +523,6 @@ export class Store {
           });
           break;
         }
-        case "image": {
-          if (document.getElementById(element.properties.elementId) == null)
-            continue;
-          const imageElement = document.getElementById(
-            element.properties.elementId
-          );
-          if (!isHtmlImageElement(imageElement)) continue;
-          // const filters = [];
-          // if (element.properties.effect?.type === "blackAndWhite") {
-          //   filters.push(new fabric.Image.filters.Grayscale());
-          // }
-          const imageObject = new fabric.CoverImage(imageElement, {
-            name: element.id,
-            left: element.placement.x,
-            top: element.placement.y,
-            angle: element.placement.rotation,
-            objectCaching: false,
-            selectable: true,
-            lockUniScaling: true,
-            // filters
-            customFilter: element.properties.effect.type,
-          });
-          // imageObject.applyFilters();
-          element.fabricObject = imageObject;
-          element.properties.imageObject = imageObject;
-          const image = {
-            w: imageElement.naturalWidth,
-            h: imageElement.naturalHeight,
-          };
-
-          imageObject.width = image.w;
-          imageObject.height = image.h;
-          imageElement.width = image.w;
-          imageElement.height = image.h;
-          imageObject.scaleToHeight(image.w);
-          imageObject.scaleToWidth(image.h);
-          const toScale = {
-            x: element.placement.width / image.w,
-            y: element.placement.height / image.h,
-          };
-          imageObject.scaleX = toScale.x * element.placement.scaleX;
-          imageObject.scaleY = toScale.y * element.placement.scaleY;
-          canvas.add(imageObject);
-          canvas.on("object:modified", function (e) {
-            if (!e.target) return;
-            const target = e.target;
-            if (target != imageObject) return;
-            const placement = element.placement;
-            let fianlScale = 1;
-            if (target.scaleX && target.scaleX > 0) {
-              fianlScale = target.scaleX / toScale.x;
-            }
-            const newPlacement: Placement = {
-              ...placement,
-              x: target.left ?? placement.x,
-              y: target.top ?? placement.y,
-              rotation: target.angle ?? placement.rotation,
-              scaleX: fianlScale,
-              scaleY: fianlScale,
-            };
-            const newElement = {
-              ...element,
-              placement: newPlacement,
-            };
-            store.updateEditorElement(newElement);
-          });
-          break;
-        }
-        case "audio": {
-          break;
-        }
-        case "text": {
-          const textObject = new fabric.Textbox(element.properties.text, {
-            name: element.id,
-            left: element.placement.x,
-            top: element.placement.y,
-            scaleX: element.placement.scaleX,
-            scaleY: element.placement.scaleY,
-            width: element.placement.width,
-            height: element.placement.height,
-            angle: element.placement.rotation,
-            fontSize: element.properties.fontSize,
-            fontWeight: element.properties.fontWeight,
-            objectCaching: false,
-            selectable: true,
-            lockUniScaling: true,
-            fill: "#ffffff",
-          });
-          element.fabricObject = textObject;
-          canvas.add(textObject);
-          canvas.on("object:modified", function (e) {
-            if (!e.target) return;
-            const target = e.target;
-            if (target != textObject) return;
-            const placement = element.placement;
-            const newPlacement: Placement = {
-              ...placement,
-              x: target.left ?? placement.x,
-              y: target.top ?? placement.y,
-              rotation: target.angle ?? placement.rotation,
-              width: target.width ?? placement.width,
-              height: target.height ?? placement.height,
-              scaleX: target.scaleX ?? placement.scaleX,
-              scaleY: target.scaleY ?? placement.scaleY,
-            };
-            const newElement = {
-              ...element,
-              placement: newPlacement,
-              properties: {
-                ...element.properties,
-                // @ts-ignore
-                text: target?.text,
-              },
-            };
-            store.updateEditorElement(newElement);
-          });
-          break;
-        }
         default: {
           throw new Error("Not implemented");
         }
@@ -859,49 +544,37 @@ export class Store {
 
 }
 
-
-export function isEditorAudioElement(
-  element: EditorElement
-): element is AudioEditorElement {
-  return element.type === "audio";
-}
 export function isEditorVideoElement(
   element: EditorElement
 ): element is VideoEditorElement {
   return element.type === "video";
 }
 
-export function isEditorImageElement(
-  element: EditorElement
-): element is ImageEditorElement {
-  return element.type === "image";
-}
 
-
-function getTextObjectsPartitionedByCharacters(textObject: fabric.Text, element:TextEditorElement):fabric.Text[]{
-  let copyCharsObjects: fabric.Text[] = [];
-  // replace all line endings with blank
-  const characters = (textObject.text ?? "").split('').filter((m) => m !== '\n');
-  const charObjects = textObject.__charBounds;
-  if (!charObjects) return [];
-  const charObjectFixed = charObjects.map((m, index) => m.slice(0, m.length - 1).map(m => ({ m, index }))).flat();
-  const lineHeight = textObject.getHeightOfLine(0);
-  for (let i = 0; i < characters.length; i++) {
-    if(!charObjectFixed[i]) continue;
-    const { m: charObject, index: lineIndex } = charObjectFixed[i];
-    const char = characters[i];
-    const scaleX = textObject.scaleX ?? 1;
-    const scaleY = textObject.scaleY ?? 1;
-    const charTextObject = new fabric.Text(char, {
-      left: charObject.left * scaleX + (element.placement.x),
-      scaleX: scaleX,
-      scaleY: scaleY,
-      top: lineIndex * lineHeight * scaleY + (element.placement.y),
-      fontSize: textObject.fontSize,
-      fontWeight: textObject.fontWeight,
-      fill : '#fff',
-    });
-    copyCharsObjects.push(charTextObject);
-  }
-  return copyCharsObjects;
-}
+// function getTextObjectsPartitionedByCharacters(textObject: fabric.Text, element:TextEditorElement):fabric.Text[]{
+//   let copyCharsObjects: fabric.Text[] = [];
+//   // replace all line endings with blank
+//   const characters = (textObject.text ?? "").split('').filter((m) => m !== '\n');
+//   const charObjects = textObject.__charBounds;
+//   if (!charObjects) return [];
+//   const charObjectFixed = charObjects.map((m, index) => m.slice(0, m.length - 1).map(m => ({ m, index }))).flat();
+//   const lineHeight = textObject.getHeightOfLine(0);
+//   for (let i = 0; i < characters.length; i++) {
+//     if(!charObjectFixed[i]) continue;
+//     const { m: charObject, index: lineIndex } = charObjectFixed[i];
+//     const char = characters[i];
+//     const scaleX = textObject.scaleX ?? 1;
+//     const scaleY = textObject.scaleY ?? 1;
+//     const charTextObject = new fabric.Text(char, {
+//       left: charObject.left * scaleX + (element.placement.x),
+//       scaleX: scaleX,
+//       scaleY: scaleY,
+//       top: lineIndex * lineHeight * scaleY + (element.placement.y),
+//       fontSize: textObject.fontSize,
+//       fontWeight: textObject.fontWeight,
+//       fill : '#fff',
+//     });
+//     copyCharsObjects.push(charTextObject);
+//   }
+//   return copyCharsObjects;
+// }

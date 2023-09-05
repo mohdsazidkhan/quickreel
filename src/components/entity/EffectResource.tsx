@@ -3,7 +3,7 @@ import React from "react";
 import { StoreContext } from "@/store";
 // import { formatTimeToMinSec } from "@/utils";
 import { observer } from "mobx-react";
-import { VideoEditorElement, ImageEditorElement, EffecType } from "@/types";
+import { VideoEditorElement, EffecType } from "@/types";
 
 const EFFECT_TYPE_TO_LABEL: Record<string, string> = {
   blackAndWhite: "Black and White",
@@ -13,7 +13,7 @@ const EFFECT_TYPE_TO_LABEL: Record<string, string> = {
   invert: "Invert",
 };
 export type EffectResourceProps = {
-  editorElement: VideoEditorElement | ImageEditorElement;
+  editorElement: VideoEditorElement;
 };
 export const EffectResource = observer((props: EffectResourceProps) => {
   const store = React.useContext(StoreContext);

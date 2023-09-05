@@ -14,9 +14,9 @@ export const SeekPlayer = observer((_props: Props) => {
   const formattedMaxTime = formatTimeToMinSecMili(store.maxTime);
   return (
     <div className="seek-player flex flex-col">
-      <div className="flex flex-row items-center px-2">
+      <div className="flex flex-row items-center">
         <button
-          className="w-[80px] rounded  px-2 py-2"
+          className="w-[80px] rounded py-2"
           onClick={() => {
             store.setPlaying(!store.playing);
           }}

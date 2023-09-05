@@ -7,7 +7,7 @@ import { UploadButton } from "../shared/UploadButton";
 
 export const VideoResourcesPanel = observer(() => {
   const store = React.useContext(StoreContext);
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
     store.addVideoResource(URL.createObjectURL(file));

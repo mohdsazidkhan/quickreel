@@ -3,7 +3,7 @@ const nextConfig = {
   webpack: (config) => {
     config.externals.push({
       sharp: "commonjs sharp",
-      canvas: "commonjs canvas",
+      canvas: "commonjs canvas"
     });
     return config;
   },

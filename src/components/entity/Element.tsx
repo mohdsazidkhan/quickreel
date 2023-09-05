@@ -14,7 +14,7 @@ export const Element = observer((props: ElementProps) => {
   const { element } = props;
   const Icon = element.type === "video" ? MdMovie : MdOutlineTextFields;
   const isSelected = store.selectedElement?.id === element.id;
-  const bgColor = isSelected ? "rgba(0, 160, 245, 0.1)" : "";
+  const bgColor = isSelected ? "rgba(170, 160, 245, 0.1)" : "";
   return (
     <div
       style={{
@@ -45,34 +45,6 @@ export const Element = observer((props: ElementProps) => {
             width={20}
             id={element.properties.elementId}
           ></video>
-        ) : null}
-        {element.type === "image" ? (
-          <img
-            className="opacity-0 max-w-[20px] max-h-[20px]"
-            src={element.properties.src}
-            onLoad={() => {
-              store.refreshElements();
-            }}
-            onLoadedData={() => {
-              store.refreshElements();
-            }}
-            height={20}
-            width={20}
-            id={element.properties.elementId}
-          ></img>
-        ) : null}
-        {element.type === "audio" ? (
-          <audio
-            className="opacity-0 max-w-[20px] max-h-[20px]"
-            src={element.properties.src}
-            onLoad={() => {
-              store.refreshElements();
-            }}
-            onLoadedData={() => {
-              store.refreshElements();
-            }}
-            id={element.properties.elementId}
-          ></audio>
         ) : null}
       </div>
       <button

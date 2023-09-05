@@ -19,7 +19,7 @@ body {
   height: 100vh;
 }
 .timeline{
-  overflow: scroll;
+  overflow-x: scroll;
   margin-bottom: 10px;
 }
 /* width */
@@ -57,4 +57,13 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+@media screen and (max-width:991px){
+  .canvas-container, .canvas-container canvas {
+    width: 100% !important;
+    height: 265px !important;
+  }
+  .canvasTimeline {
+    height: auto;
+  }
 }

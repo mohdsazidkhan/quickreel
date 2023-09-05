@@ -38,17 +38,17 @@ export const Editor = observer(() => {
     });
   }, []);
   return (
-    <div className="flex flex-row h-screen">
-      <div className="flex flex-col overflow-auto w-[200px]">
+    <div className="flex flex-col md:flex-row h-full md:h-screen">
+      <div className="flex flex-col overflow-auto w-full h-[300px] md:h-auto md:w-[200px] pb-10 md:pb-0">
         <Resources />
       </div>
-      <div className="w-[800px] mx-5 mt-2 canvasTimeline">
+      <div className="w-full md:w-[800px] mx-0 md:mx-5 mt-0 md:mt-2 canvasTimeline">
         <canvas id="canvas" className="h-[500px] w-[800px]" />
         <div className="relative px-[10px] py-[4px] timeline">
         <TimeLine />
         </div>
       </div> 
-      <div className="flex flex-col w-[200px]">
+      <div className="flex flex-col w-full md:w-[200px]">
         <ElementsPanel />
       </div>
     </div>

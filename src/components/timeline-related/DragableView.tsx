@@ -53,12 +53,14 @@ function DragableView(props: {
   };
 
   useEffect(() => {
-    window.addEventListener("mouseup", handleMouseUp as any);
-    window.addEventListener("mousemove", handleMouseMove as any);
-    return () => {
-      window.removeEventListener("mouseup", handleMouseUp as any);
-      window.removeEventListener("mousemove", handleMouseMove as any);
-    };
+    if(typeof window !== 'undefined'){
+      window.addEventListener("mouseup", handleMouseUp as any);
+      window.addEventListener("mousemove", handleMouseMove as any);
+      return () => {
+        window.removeEventListener("mouseup", handleMouseUp as any);
+        window.removeEventListener("mousemove", handleMouseMove as any);
+      };
+    }
   }, [handleMouseUp, handleMouseMove]);
 
   return (

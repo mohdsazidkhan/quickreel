@@ -4,7 +4,7 @@ import { StoreContext } from "@/store";
 import { observer } from "mobx-react";
 import { Element } from "../entity/Element";
 
-export const ElementsPanel = observer((_props: {}) => {
+export const ElementsPanel = observer((_props) => {
   const store = React.useContext(StoreContext);
   return (
     <>
