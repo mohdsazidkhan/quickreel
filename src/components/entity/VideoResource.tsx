@@ -15,6 +15,7 @@ export const VideoResource = observer(
     const ref = React.useRef<HTMLVideoElement>(null);
     const [formatedVideoLength, setFormatedVideoLength] =
       React.useState("00:00");
+      
 
     return (
       <div className="rounded-lg overscroll-none md:overflow-hidden items-cente bg-red-500 m-[15px] flex flex-col relative">
@@ -30,6 +31,8 @@ export const VideoResource = observer(
         <video
           onLoadedData={() => {
             const videoLength = ref.current?.duration ?? 0;
+            console.log(videoLength, ' duration')
+            store.setMaxTime(videoLength*1000)
             setFormatedVideoLength(formatTimeToMinSec(videoLength));
           }}
           ref={ref}

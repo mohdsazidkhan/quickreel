@@ -32,7 +32,7 @@ export class Store {
     this.audios = [];
     this.editorElements = [];
     this.backgroundColor = '#111111';
-    this.maxTime = 30 * 1000;
+    this.maxTime = 0;
     this.playing = false;
     this.currentKeyFrame = 0;
     this.selectedElement = null;
@@ -401,6 +401,9 @@ export class Store {
       return;
     }
     const videoDurationMs = videoElement.duration * 1000;
+    console.log(videoDurationMs, ' video')
+    this.maxTime = videoDurationMs;
+    
     const aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
     const id = getUid();
     this.addEditorElement(
